@@ -1,0 +1,97 @@
+package parser
+
+import scala.util.parsing.combinator._
+import scala.util.parsing.input._
+//import scala.language.postfixOps
+
+// Want to define types to make it easier to recurse through arbitrary tree structures
+// Before we did this by giving each AST node a list of AST nodes that are part of the recursive expansion
+//   Not sure this really works with case classes, even if this is part of the high level structure, as we need to match on each case in turn.
+// However, examples in https://lambda.uta.edu/cse5317/notes/node25.html suggest using the approach of class per different type.
+// May not have too many given we have binary and unary expressions (i.e. not a different class for each operator)
+// Best if have class depending on action needed
+// Perhaps a single class with different parts? (Ugly code switching on the methods)
+// Perhaps a single class with an extra case class describing the non-recursive parts? - Only need to expand when reach a leaf?
+// Perhaps a small number of non-leaf classes and many leaf classes (can mostly ignore leaf with default case)
+// Feels like the standard BinaryExpr approach will certainly work, may just have a little more code than expected.
+
+// How will this work with our make_states code?
+//   Ideally want a way of collecting a number of combinatorial statements to work out what kind of block we have?
+
+
+// Can we store position somehow to make error reporting better?
+// YES simply base Tree on Positional and add positioned{} to parse rule.  Can then access x.pos.longString to describe contents!
+// Can we skip comments easily?
+
+abstract class Tree extends Positional
+case class Integer(is_signed : Boolean, numbits: Tree) extends Tree
+case class Num(value : Int) extends Tree
+case class Name(value : String) extends Tree
+case class Task() extends Tree 
+
+class ALOGIC extends JavaTokenParsers {
+
+	def bar(t:String => Int) = t("abc")
+	
+	def foo() = bar( (_) => 4 )
+
+	def add_typedef(t: Tree, x: Name) = x
+
+	def start : Parser[List[Tree]] = rep1(entity)
+	
+	def entity : Parser[Tree] =  rep(typedef) ~> task ^^ { x => println("Hello All!"); println(x.pos.longString); x }//wholeNumber ^^ (_.toInt);
+	
+	def typedef : Parser[Tree] = "typedef" ~> known_type ~ name <~ ";" ^^ { case t ~ n => add_typedef(t,n) }
+	
+	def known_type : Parser[Tree] = "bool" ^^ ( x => Integer(false,Num(1)) )
+
+	def name = ident ^^ ( x => Name(x) )
+	
+	def taskname : Parser[String] = "fsm" | "verilog" | "network" | "pipeline"
+	
+	def task : Parser[Tree] = positioned { taskname ~ ( name <~ "{" ) ~! rep(task_declaration) ~! rep(task_content) <~ "}" ^^ ( x => Task() ) }
+	
+	def task_declaration : Parser[Tree] = ( declaration <~ ";"
+	                                      | "out" ~> sync_type ~ known_type ~ postfix_expr <~ ";" ^^ ( x => Task() ) // TODO
+										  // TODO
+										  )
+	
+	
+    def verilog_body : Parser[Any] = regex("{}".r) ^^ {x=>Name("Verilog")} // TODO seems hard to match a load of raw text here, perhaps can use whitespace to detect appropriate level?
+	
+	def task_content = "void" ~> "verilog" ~> "(" ~> ")" ~> verilog_body
+
+	def postfix_expr = name; // TODO
+	
+	def opt_initializer = name; // TODO 
+	
+	def qualification = name; // TODO
+	
+	def declaration = qualification ~! known_type ~! postfix_expr ~! opt_initializer ^^ ( x => Task() ); // TODO
+	
+	def sync_type : Parser[String] = "sync ready bubble" | "sync ready" | "sync accept" | "sync" | "wire sync accept" | "wire sync" | "wire";
+	
+	def value : Parser[Any] = obj | arr | 
+                                stringLiteral | 
+                                floatingPointNumber | name |
+                                "null" | "true" | "false"
+  
+    def obj   : Parser[Any] = "{"~repsep(member, ",")~"}"
+  
+    def arr   : Parser[Any] = "["~repsep(value, ",")~"]"
+  
+    def member: Parser[Any] = stringLiteral~":"~value
+
+}
+
+object Parser extends ALOGIC with Greeting with App {
+  println(parseAll(start,greeting))
+}
+
+trait Greeting {
+  lazy val greeting: String = """
+  typedef bool x; // comment
+  fsm testfsm {
+  }
+  """
+}
