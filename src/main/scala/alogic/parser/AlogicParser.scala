@@ -208,6 +208,7 @@ object AlogicParser extends Parsers {
 		LEFTBRACKET()~>expr<~RIGHTBRACKET() ^^ (e=>Bracket(e)) | 
 		constant~constant.? ^^ {case Num(lhs)~Some(Num(rhs)) => Num(lhs+rhs)  // Handle case when have #define NUM and NUM'b0 - Perhaps there is a better approach?
 								case lhs~None => lhs} |
+		literal ^^ (x=>Literal(x)) |
 		LEFTCURLY()~expr~LEFTCURLY()~expr~RIGHTCURLY()~RIGHTCURLY() ^^
 		{case _    ~e   ~_          ~e2  ~_           ~_            => BitRep(e,e2) } | 
 		LEFTCURLY()~>repsep(expr,COMMA())<~RIGHTCURLY() ^^
@@ -237,7 +238,7 @@ object AlogicParser extends Parsers {
 	}
 	
 	def assign_op : Parser[AlogicToken] = positioned {
-		EQUALS() | PLUSEQUALS() | MINUSEQUALS() | ANDEQUAL() | PIPEEQUAL() | LEFTSHIFTEQUAL() | RIGHTSHIFTEQUAL()
+		EQUALS() | PLUSEQUALS() | MINUSEQUALS() | ANDEQUAL() | PIPEEQUAL() | LEFTSHIFTEQUAL() | RIGHTSHIFTEQUAL() | XOREQUALS()
 	}
 	
 	

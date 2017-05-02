@@ -34,6 +34,7 @@ case class VerilogFunction(text:VERILOGSTMT) extends TaskContent
 // AlogicAST used for abstract syntax nodes
 sealed trait AlogicAST extends Positional
 case class Num(value : String) extends AlogicAST  // Numbers held as textual representation
+case class Literal(value : LITERAL) extends AlogicAST  // Numbers held as textual representation
 case class Name(value : IDENTIFIER) extends AlogicAST
 case class DottedName(names: List[IDENTIFIER]) extends AlogicAST
 case class Task(tasktype: TaskType, name: IDENTIFIER, decls: List[Declaration], fns: List[TaskContent]) extends AlogicAST

@@ -77,5 +77,6 @@ case class DEFAULT() extends AlogicToken
 case class PLUSPLUS() extends AlogicToken
 case class MINUSMINUS() extends AlogicToken
 case class XOR() extends AlogicToken
+case class XOREQUALS() extends AlogicToken
 case class VERILOGSTMT(str: String) extends AlogicToken
 case class BADDEFINE() extends AlogicToken  // THis token is emitted for the RHS of a unparseable define
