@@ -206,7 +206,8 @@ object AlogicParser extends Parsers {
 		TRUE() ^^ (_=>Num("1'b1")) |
 		FALSE() ^^ (_=>Num("1'b0")) |
 		LEFTBRACKET()~>expr<~RIGHTBRACKET() ^^ (e=>Bracket(e)) | 
-		constant |
+		constant~constant.? ^^ {case Num(lhs)~Some(Num(rhs)) => Num(lhs+rhs)  // Handle case when have #define NUM and NUM'b0 - Perhaps there is a better approach?
+								case lhs~None => lhs} |
 		LEFTCURLY()~expr~LEFTCURLY()~expr~RIGHTCURLY()~RIGHTCURLY() ^^
 		{case _    ~e   ~_          ~e2  ~_           ~_            => BitRep(e,e2) } | 
 		LEFTCURLY()~>repsep(expr,COMMA())<~RIGHTCURLY() ^^
