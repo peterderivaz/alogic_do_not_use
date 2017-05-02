@@ -54,7 +54,7 @@ object AlogicLexer extends RegexParsers {
 	(colon | minuscolon | pluscolon | andequal | pipeequal | andand | andtok | star | inttok | uint | unarytilda | pipepipe) | 
 	(pipe | leftshift | rightshift | lessthan | greaterthan |  ampersand | plusplus | minusminus | plus | minus | not) | 
 	dot | comma | whiletok | dotok | fortok /* Don't take up namespace with these words - ready is useful elsewhere sync | ready | wire | accept | bubble */ | 
-	(fsm | network | pipeline | typedef | semicolon | iftok | elsetok | dollar | break | goto | returntok ) |
+	(fsm | network | pipeline | typedef | semicolon | iftok | elsetok | dollar | break | goto | returntok | xor) |
 	(uint_type | int_type | bool | struct | leftcurly | rightcurly | equals | in | out | const | casetok | defaulttok ) | 
 	(leftsquare | rightsquare | leftbracket | rightbracket | questionmark | truetok | falsetok | constant | verilog_stmt | verilog | void | fence | equals) | literal }
 
@@ -159,6 +159,7 @@ object AlogicLexer extends RegexParsers {
   def rightbracket  = positioned { ")"             ^^ (_ => RIGHTBRACKET()) }
   def in            = positioned { "in\\b".r            ^^ (_ => IN()) }
   def out           = positioned { "out\\b".r           ^^ (_ => OUT()) }
+  def xor           = positioned { "^"                  ^^ (_ => XOR()) }
   def const         = positioned { "const\\b".r         ^^ (_ => CONST()) }
   def fence         = positioned { "fence\\b".r         ^^ (_ => FENCE()) }
   def truetok       = positioned { "true\\b".r          ^^ (_ => TRUE()) }
