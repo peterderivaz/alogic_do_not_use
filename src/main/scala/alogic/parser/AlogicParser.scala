@@ -168,7 +168,7 @@ object AlogicParser extends Parsers {
 	
 	def binary_op : Parser[AlogicToken] = positioned (
 		PLUS() | MINUS() | AMPERSAND() | PIPE() | PIPEPIPE() | LESSTHAN() | GREATERTHAN() | STAR() | RIGHTSHIFT() | LEFTSHIFT() |
-		ANDAND() | AND() | EQUALSEQUALS() | LESSEQUAL() | GREATEREQUAL() | NOTEQUAL() | XOR() // TODO
+		ANDAND() | AND() | EQUALSEQUALS() | LESSEQUAL() | GREATEREQUAL() | NOTEQUAL() | XOR() | RIGHTRIGHTSHIFT() // TODO
 	)
 	
 	def binary_expr : Parser[AlogicAST] = positioned (

@@ -4,6 +4,8 @@ import alogic.lexer.AlogicLexer
 import alogic.parser.{AlogicParser, AlogicAST, FenceStmt}
 import scala.io.Source
 
+//  for file in ../build/*.alogic ; do sbt "run ../build/interfaces.h $file"; done
+
 object AlogicCompiler {
 
   def loadFile(filename:String):String = {

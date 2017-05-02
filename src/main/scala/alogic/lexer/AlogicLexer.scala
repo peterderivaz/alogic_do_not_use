@@ -52,7 +52,7 @@ object AlogicLexer extends RegexParsers {
   def token: Parser[AlogicToken] = positioned {
 	(leftshiftequal | rightshiftequal | plusequals | notequal | minusequals | equalsequals | lessequal | greaterequal) |
 	(colon | minuscolon | pluscolon | andequal | pipeequal | andand | andtok | star | inttok | uint | unarytilda | pipepipe) | 
-	(pipe | leftshift | rightshift | lessthan | greaterthan |  ampersand | plusplus | minusminus | plus | minus | not) | 
+	(pipe | leftshift | rightrightshift | rightshift | lessthan | greaterthan |  ampersand | plusplus | minusminus | plus | minus | not) | 
 	dot | comma | whiletok | dotok | fortok /* Don't take up namespace with these words - ready is useful elsewhere sync | ready | wire | accept | bubble */ | 
 	(fsm | network | pipeline | typedef | semicolon | iftok | elsetok | dollar | break | goto | returntok | xorequals | xor) |
 	(uint_type | int_type | bool | struct | leftcurly | rightcurly | equals | in | out | const | casetok | defaulttok ) | 
@@ -127,6 +127,7 @@ object AlogicLexer extends RegexParsers {
   def leftshift     = positioned { "<<"            ^^ (_ => LEFTSHIFT()) }
   def leftshiftequal= positioned { "<<="           ^^ (_ => LEFTSHIFTEQUAL()) }
   def rightshift    = positioned { ">>"            ^^ (_ => RIGHTSHIFT()) }
+  def rightrightshift = positioned { ">>>"            ^^ (_ => RIGHTRIGHTSHIFT()) }
   def rightshiftequal = positioned { ">>="            ^^ (_ => RIGHTSHIFTEQUAL()) }
   def unarytilda    = positioned { "~"             ^^ (_ => UNARYTILDA()) }
   def pipepipe      = positioned { "||"            ^^ (_ => PIPEPIPE()) }
