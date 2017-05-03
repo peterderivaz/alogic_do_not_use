@@ -48,6 +48,7 @@ case class AMPERSAND() extends AlogicToken
 case class UNARYTILDA() extends AlogicToken
 case class RIGHTSHIFT() extends AlogicToken
 case class RIGHTRIGHTSHIFT() extends AlogicToken
+case class RIGHTRIGHTSHIFTEQUAL() extends AlogicToken
 case class RIGHTSHIFTEQUAL() extends AlogicToken
 case class LEFTSHIFT() extends AlogicToken
 case class LEFTSHIFTEQUAL() extends AlogicToken

@@ -238,7 +238,7 @@ object AlogicParser extends Parsers {
 	}
 	
 	def assign_op : Parser[AlogicToken] = positioned {
-		EQUALS() | PLUSEQUALS() | MINUSEQUALS() | ANDEQUAL() | PIPEEQUAL() | LEFTSHIFTEQUAL() | RIGHTSHIFTEQUAL() | XOREQUALS()
+		EQUALS() | PLUSEQUALS() | MINUSEQUALS() | ANDEQUAL() | PIPEEQUAL() | LEFTSHIFTEQUAL() | RIGHTSHIFTEQUAL() | XOREQUALS() | RIGHTRIGHTSHIFTEQUAL()
 	}
 	
 	

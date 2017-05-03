@@ -50,7 +50,7 @@ object AlogicLexer extends RegexParsers {
   // Maybe faster to grab a word, then perform lookups for the keywords!
   
   def token: Parser[AlogicToken] = positioned {
-	(leftshiftequal | rightshiftequal | plusequals | notequal | minusequals | equalsequals | lessequal | greaterequal) |
+	(leftshiftequal | rightrightshiftequal | rightshiftequal | plusequals | notequal | minusequals | equalsequals | lessequal | greaterequal) |
 	(colon | minuscolon | pluscolon | andequal | pipeequal | andand | andtok | star | inttok | uint | unarytilda | pipepipe) | 
 	(pipe | leftshift | rightrightshift | rightshift | lessthan | greaterthan |  ampersand | plusplus | minusminus | plus | minus | not) | 
 	dot | comma | whiletok | dotok | fortok /* Don't take up namespace with these words - ready is useful elsewhere sync | ready | wire | accept | bubble */ | 
@@ -128,6 +128,7 @@ object AlogicLexer extends RegexParsers {
   def leftshiftequal= positioned { "<<="           ^^ (_ => LEFTSHIFTEQUAL()) }
   def rightshift    = positioned { ">>"            ^^ (_ => RIGHTSHIFT()) }
   def rightrightshift = positioned { ">>>"            ^^ (_ => RIGHTRIGHTSHIFT()) }
+  def rightrightshiftequal = positioned { ">>>="            ^^ (_ => RIGHTRIGHTSHIFTEQUAL()) }
   def rightshiftequal = positioned { ">>="            ^^ (_ => RIGHTSHIFTEQUAL()) }
   def unarytilda    = positioned { "~"             ^^ (_ => UNARYTILDA()) }
   def pipepipe      = positioned { "||"            ^^ (_ => PIPEPIPE()) }
