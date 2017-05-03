@@ -17,7 +17,7 @@ object AlogicCompiler {
 	code
   }
   
-  def parseFile(filename:String): AlogicAST = {
+  def parseFile(filename:String,lexer:AlogicLexer,parser:AlogicParser): AlogicAST = {
 	// This is an example of using Either for exception handling
 	// http://danielwestheide.com/blog/2013/01/02/the-neophytes-guide-to-scala-part-7-the-either-type.html
 	// Errors will get passed down.
@@ -25,8 +25,8 @@ object AlogicCompiler {
 	{
 		println(s"Loading $filename")
 		for {
-		  tokens <- AlogicLexer(loadFile(filename)).right
-		  ast <- AlogicParser(tokens).right
+		  tokens <- lexer(loadFile(filename)).right
+		  ast <- parser(tokens).right
 		} yield {
 			ast
 		}
@@ -36,7 +36,10 @@ object AlogicCompiler {
 			System.exit(-1)
 			FenceStmt()
 		}
-		case Right(result) => result
+		case Right(result) => {
+			println(s"Finished $filename")
+			result
+		}
 	}
   }
   
@@ -45,19 +48,31 @@ object AlogicCompiler {
   }
 
   def apply(headerFiles:Array[String], codeFile: String): AlogicAST = {
+	val baselexer = new AlogicLexer()
+	val baseparser = new AlogicParser()
+
     for {
       hdr <- headerFiles
-	} parseFile(hdr)
+	} parseFile(hdr,baselexer,baseparser)
 	
 	val d = new File(codeFile)
 	if (d.exists && d.isDirectory) {
 		val lst = getListOfFiles(d)
-		for {f <- lst.init} {
-		  parseFile(f.getPath)
+		// Start threads
+		val threads = for {f <- lst} yield {
+		  val thread = new Thread {
+			override def run {
+				parseFile(f.getPath,new AlogicLexer(baselexer.defines),new AlogicParser(baseparser.typedefs))
+			}
+		  }
+		  thread.start
+		  thread
 		}
-		parseFile(lst.last.getPath)
+		// Join threads
+		for {t <- threads} t.join()
+		FenceStmt()
 	} else {
-		parseFile(codeFile)
+		parseFile(codeFile,baselexer,baseparser)
 	}
   }
 }

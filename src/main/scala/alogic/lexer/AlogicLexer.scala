@@ -24,10 +24,12 @@ import scala.collection._
 //     set JAVA_OPTS=-Xmx1G -Xss4M
 //   Support for command_writer: NUM_COUNT_BITS'b0
 
-object AlogicLexer extends RegexParsers {
+class AlogicLexer(base_defines: mutable.Map[String,List[AlogicToken]]) extends RegexParsers {
   override def skipWhitespace = true
   
-  val defines = mutable.Map[String,List[AlogicToken]]()
+  var defines = mutable.Map[String,List[AlogicToken]]() ++ base_defines // Take a copy of the input defines
+  
+  def this() = this(mutable.Map[String,List[AlogicToken]]())
   
   def apply(code: String): Either[AlogicLexerError, List[AlogicToken]] = {
     parse(tokens, code) match {
