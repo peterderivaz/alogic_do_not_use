@@ -49,9 +49,12 @@ Or match the sync ready string as a single unit!
 Perhaps still an issue if want an out sync ready!
 
 */
+class AlogicParser(base_typedefs: mutable.Map[String,AlogicType]) extends Parsers {
 	override type Elem = AlogicToken
 	
+	def this() = this(mutable.Map[String,AlogicType]())
 	
+	val typedefs = mutable.Map[String,AlogicType]() ++ base_typedefs
 	
 	class AlogicTokenReader(tokens: Seq[AlogicToken]) extends Reader[AlogicToken] {
 		override def first: AlogicToken = tokens.head

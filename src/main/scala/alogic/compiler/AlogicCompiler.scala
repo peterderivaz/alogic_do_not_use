@@ -60,6 +60,7 @@ object AlogicCompiler {
 		val lst = getListOfFiles(d)
 		// Start threads
 		val threads = for {f <- lst} yield {
+		  // make copies of the Lexer and Parser to avoid conflicts
 		  val thread = new Thread {
 			override def run {
 				parseFile(f.getPath,new AlogicLexer(baselexer.defines),new AlogicParser(baseparser.typedefs))
