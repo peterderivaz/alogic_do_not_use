@@ -6,6 +6,8 @@ import scala.io.Source
 
 //  for file in ../build/*.alogic ; do sbt "run ../build/interfaces.h $file"; done
 
+import java.io.File
+
 object AlogicCompiler {
 
   def loadFile(filename:String):String = {
@@ -16,18 +18,18 @@ object AlogicCompiler {
   }
   
   def parseFile(filename:String): AlogicAST = {
-  
 	// This is an example of using Either for exception handling
 	// http://danielwestheide.com/blog/2013/01/02/the-neophytes-guide-to-scala-part-7-the-either-type.html
 	// Errors will get passed down.
 	// The right call marks this as a right projection - so further operations only occur if we are a Right
 	{
+		println(s"Loading $filename")
 		for {
 		  tokens <- AlogicLexer(loadFile(filename)).right
 		  ast <- AlogicParser(tokens).right
 		} yield {
 			ast
-		} 
+		}
 	} match {
 		case Left(err) => {
 			println(s"Failure $filename: $err")
@@ -37,12 +39,26 @@ object AlogicCompiler {
 		case Right(result) => result
 	}
   }
+  
+  def getListOfFiles(dir: File): List[File] = {
+    dir.listFiles.filter(_.isFile).toList.filter { s => s.getName.endsWith("alogic") }
+  }
 
   def apply(headerFiles:Array[String], codeFile: String): AlogicAST = {
     for {
       hdr <- headerFiles
 	} parseFile(hdr)
-	parseFile(codeFile)
+	
+	val d = new File(codeFile)
+	if (d.exists && d.isDirectory) {
+		val lst = getListOfFiles(d)
+		for {f <- lst.init} {
+		  parseFile(f.getPath)
+		}
+		parseFile(lst.last.getPath)
+	} else {
+		parseFile(codeFile)
+	}
   }
 }
 
