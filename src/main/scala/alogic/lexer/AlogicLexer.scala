@@ -43,48 +43,48 @@ class AlogicLexer(base_defines: mutable.Map[String,List[AlogicToken]]) extends R
   }
   
   def tokenlist: Parser[List[AlogicToken]] = {
-	token ^^ (t=>List(t)) |
-	identifier ^^ {
-	case IDENTIFIER(str) if (defines contains str) => defines(str)
-    case x => List(x) }	
+    token ^^ (t=>List(t)) |
+    identifier ^^ {
+    case IDENTIFIER(str) if (defines contains str) => defines(str)
+    case x => List(x) }    
   }
   
   // Maybe faster to grab a word, then perform lookups for the keywords!
   
   def token: Parser[AlogicToken] = positioned {
-	(leftshiftequal | rightrightshiftequal | rightshiftequal | plusequals | notequal | minusequals | equalsequals | lessequal | greaterequal) |
-	(colon | minuscolon | pluscolon | andequal | pipeequal | andand | andtok | star | inttok | uint | unarytilda | pipepipe) | 
-	(pipe | leftshift | rightrightshift | rightshift | lessthan | greaterthan |  ampersand | plusplus | minusminus | plus | minus | not) | 
-	dot | comma | whiletok | dotok | fortok /* Don't take up namespace with these words - ready is useful elsewhere sync | ready | wire | accept | bubble */ | 
-	(fsm | network | pipeline | typedef | semicolon | iftok | elsetok | dollar | break | goto | returntok | xorequals | xor) |
-	(uint_type | int_type | bool | struct | leftcurly | rightcurly | equals | in | out | const | casetok | defaulttok ) | 
-	(leftsquare | rightsquare | leftbracket | rightbracket | questionmark | truetok | falsetok | constant | verilog_stmt | verilog | void | fence | equals) | literal }
+    (leftshiftequal | rightrightshiftequal | rightshiftequal | plusequals | notequal | minusequals | equalsequals | lessequal | greaterequal) |
+    (colon | minuscolon | pluscolon | andequal | pipeequal | andand | andtok | star | inttok | uint | unarytilda | pipepipe) | 
+    (pipe | leftshift | rightrightshift | rightshift | lessthan | greaterthan |  ampersand | plusplus | minusminus | plus | minus | not) | 
+    dot | comma | whiletok | dotok | fortok /* Don't take up namespace with these words - ready is useful elsewhere sync | ready | wire | accept | bubble */ | 
+    (fsm | network | pipeline | typedef | semicolon | iftok | elsetok | dollar | break | goto | returntok | xorequals | xor) |
+    (uint_type | int_type | bool | struct | leftcurly | rightcurly | equals | in | out | const | casetok | defaulttok ) | 
+    (leftsquare | rightsquare | leftbracket | rightbracket | questionmark | truetok | falsetok | constant | verilog_stmt | verilog | void | fence | equals) | literal }
 
   def comment: Parser[Any] = regex("//.*".r) | 
           regex("/\\*[^*]*\\*+(?:[^/*][^*]*\\*+)*/".r) | // http://stackoverflow.com/questions/13014947/regex-to-match-a-c-style-multiline-comment
-		  "#\\s*define\\s+".r ~> identifier ~ "[^\\n]*".r ^^ {
-			case IDENTIFIER(id) ~ rhs => defines(id) = parse(tokens,rhs) match {
-				case NoSuccess(msg, next) => List(BADDEFINE()) // TODO how to pass an error back from here?  Perhaps with ^? somehow?
-				case Success(result,next) => result
-			}
-		  } withFailureMessage "Unknown symbol found" // Could do parsing later if want recursive defines?
+          "#\\s*define\\s+".r ~> identifier ~ "[^\\n]*".r ^^ {
+            case IDENTIFIER(id) ~ rhs => defines(id) = parse(tokens,rhs) match {
+                case NoSuccess(msg, next) => List(BADDEFINE()) // TODO how to pass an error back from here?  Perhaps with ^? somehow?
+                case Success(result,next) => result
+            }
+          } withFailureMessage "Unknown symbol found" // Could do parsing later if want recursive defines?
  
   def uint_type: Parser[INTTYPE] = positioned {
     "u[0-9_]+\\b".r ^^ { str => 
-		val content = str.substring(1,str.length)
-		INTTYPE(false,content.toInt) 
-	}
+        val content = str.substring(1,str.length)
+        INTTYPE(false,content.toInt) 
+    }
   }
   
   def int_type: Parser[INTTYPE] = positioned {
     "i[0-9_]+\\b".r ^^ { str => 
-		val content = str.substring(1,str.length)
-		INTTYPE(true,content.toInt) 
-	}
+        val content = str.substring(1,str.length)
+        INTTYPE(true,content.toInt) 
+    }
   }
   
   def bool: Parser[INTTYPE] = positioned { 
-	"bool\\b".r ^^ { _ => INTTYPE(false,1) }
+    "bool\\b".r ^^ { _ => INTTYPE(false,1) }
   }
   
   def identifier: Parser[IDENTIFIER] = positioned {
@@ -93,21 +93,21 @@ class AlogicLexer(base_defines: mutable.Map[String,List[AlogicToken]]) extends R
   
   def constant: Parser[CONSTANT] = positioned {
     "[0-9]*'[a-zA-Z0-9_]*".r ^^ { str => CONSTANT(str) } | // TODO make this more explicit
-	"[0-9]+".r ^^ { str => CONSTANT(str) }
+    "[0-9]+".r ^^ { str => CONSTANT(str) }
   }
   
   def verilog_stmt: Parser[VERILOGSTMT] = positioned {
-	"void\\s+verilog\\s*".r ~! "\\(\\s*\\)\\s*".r~>verilog_body
+    "void\\s+verilog\\s*".r ~! "\\(\\s*\\)\\s*".r~>verilog_body
   }
   
   def anycontent: Parser[VERILOGSTMT] = positioned {
-	"[^\\{\\}]+".r ^^ (x=>VERILOGSTMT(x)) |
-	verilog_body
+    "[^\\{\\}]+".r ^^ (x=>VERILOGSTMT(x)) |
+    verilog_body
   }
   
   def verilog_body: Parser[VERILOGSTMT] = positioned {
-	"{" ~! rep(anycontent) ~! "}" ^^ {
-	case a~b~c => VERILOGSTMT(a + b.mkString("") + c) }
+    "{" ~! rep(anycontent) ~! "}" ^^ {
+    case a~b~c => VERILOGSTMT(a + b.mkString("") + c) }
   }
   
   // Add regex to prevent textual tokens matching a longer symbol
