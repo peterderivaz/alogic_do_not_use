@@ -11,5 +11,6 @@ sbt "run <path_to_header_file>* <path_to_file_to_compile>"
 # DEPRECATED
 
 I found the parser combinator library a bit slow (12 seconds to compile).
+I have rewritten this using the Antlr parser generator where it takes 0.2 seconds to compile.
 
 The new code is at: https://github.com/peterderivaz/alogic_antlr
